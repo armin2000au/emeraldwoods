@@ -25,14 +25,14 @@ jobs:
           echo "First Commit SHA: $FIRST_COMMIT_SHA"
 
           # Get the author information of the first commit
-          AUTHOR_INFO=$(git show -s --format='%H %an' "$FIRST_COMMIT_SHA")
-          BRANCH_CREATOR_EMAIL=$(echo "$AUTHOR_INFO" | awk '{print $2}')
+          AUTHOR_INFO=$(git show -s --format='%ae %an' "$FIRST_COMMIT_SHA")
+          BRANCH_CREATOR_EMAIL=$(echo "$AUTHOR_INFO" | awk '{print $1}')
           
           # Use GitHub API to get the username from email
           BRANCH_CREATOR=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/search/users?q=${BRANCH_CREATOR_EMAIL}" | \
-            jq -r '.items[0].login')
-          
+            jq -r '.items[0].login // empty')
+
           echo "Branch Creator GitHub Username: $BRANCH_CREATOR"
 
           # Set output for later steps
