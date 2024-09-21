@@ -14,6 +14,9 @@ jobs:
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           OWNER="${GITHUB_ACTOR}"
 
+          echo "Branch Name: $BRANCH_NAME"
+          echo "Owner: $OWNER"
+
           # Assuming branch names are in the format 'username/branch-name'
           if [[ "$BRANCH_NAME" != "$OWNER/"* ]]; then
             echo "You do not have permission to push to this branch."
