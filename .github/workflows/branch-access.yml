@@ -12,7 +12,10 @@ jobs:
       - name: Check if user is branch owner
         run: |
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          if [[ "$BRANCH_NAME" != "${GITHUB_ACTOR}" ]]; then
+          OWNER="${GITHUB_ACTOR}"
+
+          # Assuming branch names are in the format 'username/branch-name'
+          if [[ "$BRANCH_NAME" != "$OWNER/"* ]]; then
             echo "You do not have permission to push to this branch."
             exit 1
           fi
