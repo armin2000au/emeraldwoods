@@ -8,6 +8,7 @@ on:
 jobs:
   check-branch-owner:
     runs-on: ubuntu-latest
+    name: Check Branch Owner
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
