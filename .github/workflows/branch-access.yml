@@ -15,7 +15,7 @@ jobs:
       - name: Get original branch creator
         id: get_creator
         run: |
-          # Extract branch name and owner
+          # Extract branch name
           BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           echo "Branch Name: $BRANCH_NAME"
 
@@ -23,17 +23,18 @@ jobs:
           FIRST_COMMIT_SHA=$(git rev-list --max-parents=0 HEAD)
           echo "First Commit SHA: $FIRST_COMMIT_SHA"
 
-          # Get the author of the first commit
-          BRANCH_CREATOR=$(git show -s --format='%ae' "$FIRST_COMMIT_SHA")
+          # Get the author information of the first commit
+          AUTHOR_INFO=$(git show -s --format='%H %an' "$FIRST_COMMIT_SHA")
+          BRANCH_CREATOR=$(echo "$AUTHOR_INFO" | awk '{print $2}')
           echo "Branch Creator: $BRANCH_CREATOR"
 
           # Set output for later steps
-          echo "::set-output name=branch_creator::$BRANCH_CREATOR"
+          echo "branch_creator=$BRANCH_CREATOR" >> $GITHUB_ENV
 
       - name: Check if user is branch owner
         run: |
           OWNER="${GITHUB_ACTOR}"
-          BRANCH_CREATOR="${{ steps.get_creator.outputs.branch_creator }}"
+          BRANCH_CREATOR="${{ env.branch_creator }}"
 
           echo "Current Actor: $OWNER"
           echo "Branch Creator: $BRANCH_CREATOR"
