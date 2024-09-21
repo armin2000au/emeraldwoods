@@ -9,16 +9,39 @@ jobs:
   check-branch-owner:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get original branch creator
+        id: get_creator
+        run: |
+          # Extract branch name and owner
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          echo "Branch Name: $BRANCH_NAME"
+
+          # Get the commit SHA of the first commit on the branch
+          FIRST_COMMIT_SHA=$(git rev-list --max-parents=0 HEAD)
+          echo "First Commit SHA: $FIRST_COMMIT_SHA"
+
+          # Get the author of the first commit
+          BRANCH_CREATOR=$(git show -s --format='%ae' "$FIRST_COMMIT_SHA")
+          echo "Branch Creator: $BRANCH_CREATOR"
+
+          # Set output for later steps
+          echo "::set-output name=branch_creator::$BRANCH_CREATOR"
+
       - name: Check if user is branch owner
         run: |
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
           OWNER="${GITHUB_ACTOR}"
+          BRANCH_CREATOR="${{ steps.get_creator.outputs.branch_creator }}"
 
-          echo "Branch Name: $BRANCH_NAME"
-          echo "Owner: $OWNER"
+          echo "Current Actor: $OWNER"
+          echo "Branch Creator: $BRANCH_CREATOR"
 
-          # Assuming branch names are in the format 'username/branch-name'
-          if [[ "$BRANCH_NAME" != "$OWNER/"* ]]; then
+          # Check if the branch creator is the same as the current actor
+          if [[ "$BRANCH_CREATOR" != "$OWNER" ]]; then
             echo "You do not have permission to push to this branch."
             exit 1
+          else
+            echo "Permission granted to push to this branch."
           fi
